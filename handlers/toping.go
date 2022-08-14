@@ -76,9 +76,9 @@ func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
 	}
 
 	toping := models.Toping{
-		Name:  request.Name,
-		Desc:  request.Desc,
+		Title: request.Title,
 		Price: request.Price,
+		Image: request.Image,
 	}
 
 	// err := mysql.DB.Create(&toping).Error

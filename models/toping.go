@@ -5,9 +5,9 @@ import "time"
 // User model struct
 type Toping struct {
 	ID        int       `json:"id" gorm:"primary_key:auto_increment"`
-	Name      string    `json:"name" gorm:"type: varchar(255)"`
-	Desc      string    `json:"desc" gorm:"type: varchar(255)"`
+	Title     string    `json:"title" gorm:"type: varchar(255)"`
 	Price     int       `json:"price" gorm:"type: int"`
+	Image     string    `json:"image" form:"image" gorm:"type: varchar(255)"`
 	CreatedAt time.Time `json:"-"`
 	UpdatedAt time.Time `json:"-"`
 }

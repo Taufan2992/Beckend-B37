@@ -79,7 +79,6 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 		ProductID: request.ProductID,
 		BuyerID:   request.BuyerID,
 		SellerID:  request.SellerID,
-		Price:     request.Price,
 		Status:    request.Status,
 	}
 
