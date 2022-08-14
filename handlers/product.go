@@ -122,21 +122,17 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		product.Title = request.Title
 	}
 
-	// if request.Price != "" {
-	// 	product.Price = request.Price
-	// }
+	if request.Price != 0 {
+		product.Price = request.Price
+	}
 
 	if request.Image != "" {
 		product.Image = request.Image
 	}
 
-	// if request.UserID != "" {
-	// 	product.UserID = request.UserID
-	// }
-
-	// if request.TopingID != "" {
-	// 	product.TopingID = request.TopingID
-	// }
+	if request.UserID != 0 {
+		product.UserID = request.UserID
+	}
 
 	data, err := h.ProductRepository.UpdateProduct(product)
 	if err != nil {

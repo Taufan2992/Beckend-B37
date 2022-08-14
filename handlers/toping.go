@@ -100,7 +100,7 @@ func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
 func (h *handlerToping) UpdateToping(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	request := new(topingdto.TopingRequest)
+	request := new(topingdto.UpdateTopingRequest)
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -117,17 +117,17 @@ func (h *handlerToping) UpdateToping(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// if request.Name != "" {
-	// 	user.Name = request.Name
-	// }
+	if request.Title != "" {
+		toping.Title = request.Title
+	}
 
-	// if request.Email != "" {
-	// 	user.Email = request.Email
-	// }
+	if request.Price != 0 {
+		toping.Price = request.Price
+	}
 
-	// if request.Password != "" {
-	// 	user.Password = request.Password
-	// }
+	if request.Image != "" {
+		toping.Image = request.Image
+	}
 
 	data, err := h.TopingRepository.UpdateToping(toping)
 	if err != nil {

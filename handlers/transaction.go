@@ -76,10 +76,9 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 	}
 
 	transaction := models.Transaction{
-		ProductID: request.ProductID,
-		BuyerID:   request.BuyerID,
-		SellerID:  request.SellerID,
 		Status:    request.Status,
+		BuyerID:   request.BuyerID,
+		ProductID: request.ProductID,
 	}
 
 	// err := mysql.DB.Create(&transaction).Error
@@ -101,7 +100,7 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 func (h *handlerTransaction) UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	request := new(transactiondto.TransactionRequest)
+	request := new(transactiondto.UpdateTransactionRequest)
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -118,17 +117,17 @@ func (h *handlerTransaction) UpdateTransaction(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	// if request.Name != "" {
-	// 	user.Name = request.Name
-	// }
+	if request.Status != "" {
+		transaction.Status = request.Status
+	}
 
-	// if request.Email != "" {
-	// 	user.Email = request.Email
-	// }
+	if request.BuyerID != 0 {
+		transaction.BuyerID = request.BuyerID
+	}
 
-	// if request.Password != "" {
-	// 	user.Password = request.Password
-	// }
+	if request.ProductID != 0 {
+		transaction.ProductID = request.ProductID
+	}
 
 	data, err := h.TransactionRepository.UpdateTransaction(transaction)
 	if err != nil {

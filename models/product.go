@@ -27,6 +27,16 @@ type ProductResponse struct {
 	TopingID []int                `json:"-" form:"toping_id" gorm:"-"`
 }
 
+type ProductTransactionResponse struct {
+	ID       int      `json:"id"`
+	Title    string   `json:"title"`
+	Price    int      `json:"price"`
+	Image    string   `json:"image"`
+	UserID   int      `json:"-"`
+	Toping   []Toping `json:"toping" gorm:"many2many:product_topings"`
+	TopingID []int    `json:"-" form:"toping_id" gorm:"-"`
+}
+
 type ProductUserResponse struct {
 	ID     int    `json:"id"`
 	Title  string `json:"title"`
@@ -42,5 +52,9 @@ func (ProductResponse) TableName() string {
 }
 
 func (ProductUserResponse) TableName() string {
+	return "products"
+}
+
+func (ProductTransactionResponse) TableName() string {
 	return "products"
 }
