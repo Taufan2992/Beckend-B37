@@ -101,7 +101,7 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	request := new(productdto.ProductRequest)
+	request := new(productdto.UpdateProductRequest)
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -118,16 +118,24 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// if request.Name != "" {
-	// 	user.Name = request.Name
+	if request.Title != "" {
+		product.Title = request.Title
+	}
+
+	// if request.Price != "" {
+	// 	product.Price = request.Price
 	// }
 
-	// if request.Email != "" {
-	// 	user.Email = request.Email
+	if request.Image != "" {
+		product.Image = request.Image
+	}
+
+	// if request.UserID != "" {
+	// 	product.UserID = request.UserID
 	// }
 
-	// if request.Password != "" {
-	// 	user.Password = request.Password
+	// if request.TopingID != "" {
+	// 	product.TopingID = request.TopingID
 	// }
 
 	data, err := h.ProductRepository.UpdateProduct(product)
