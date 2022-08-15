@@ -17,6 +17,9 @@ type handlerProduct struct {
 	ProductRepository repositories.ProductRepository
 }
 
+// path alamat untuk akses halaman gambar
+var path_file = "http://localhost:5000/uploads/"
+
 func HandlerProduct(ProductRepository repositories.ProductRepository) *handlerProduct {
 	return &handlerProduct{ProductRepository}
 }
@@ -29,6 +32,11 @@ func (h *handlerProduct) FindProducts(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
+	}
+
+	// looping untuk melakukan tampilan gambar pada postman
+	for i, p := range products {
+		products[i].Image = path_file + p.Image
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -50,6 +58,9 @@ func (h *handlerProduct) GetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// menampilkan gambar
+	product.Image = path_file + product.Image
+
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseProduct(product)}
 	json.NewEncoder(w).Encode(response)
@@ -58,13 +69,24 @@ func (h *handlerProduct) GetProduct(w http.ResponseWriter, r *http.Request) {
 func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	request := new(productdto.ProductRequest)
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
-		return
+	dataContex := r.Context().Value("dataFile") // add this code
+	filename := dataContex.(string)             // add this code
+
+	price, _ := strconv.Atoi(r.FormValue("price"))
+	user_id, _ := strconv.Atoi(r.FormValue("user_id"))
+	request := productdto.ProductRequest{
+		Title:  r.FormValue("title"),
+		Price:  price,
+		UserID: user_id,
 	}
+
+	// request := new(productdto.ProductRequest)
+	// if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+	// 	json.NewEncoder(w).Encode(response)
+	// 	return
+	// }
 
 	validation := validator.New()
 	err := validation.Struct(request)
@@ -78,7 +100,7 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	product := models.Product{
 		Title:  request.Title,
 		Price:  request.Price,
-		Image:  request.Image,
+		Image:  filename,
 		UserID: request.UserID,
 	}
 
@@ -101,13 +123,24 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	request := new(productdto.UpdateProductRequest)
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
-		return
+	dataContex := r.Context().Value("dataFile") // add this code
+	filename := dataContex.(string)             // add this code
+
+	price, _ := strconv.Atoi(r.FormValue("price"))
+	user_id, _ := strconv.Atoi(r.FormValue("user_id"))
+	request := productdto.ProductRequest{
+		Title:  r.FormValue("title"),
+		Price:  price,
+		UserID: user_id,
 	}
+
+	// request := new(productdto.UpdateProductRequest)
+	// if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+	// 	json.NewEncoder(w).Encode(response)
+	// 	return
+	// }
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 	product, err := h.ProductRepository.GetProduct(int(id))
@@ -127,7 +160,7 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if request.Image != "" {
-		product.Image = request.Image
+		product.Image = filename
 	}
 
 	if request.UserID != 0 {

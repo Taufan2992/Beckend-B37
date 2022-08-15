@@ -2,6 +2,7 @@ package routes
 
 import (
 	"golang/handlers"
+	"golang/pkg/middleware"
 	"golang/pkg/mysql"
 	"golang/repositories"
 
@@ -15,7 +16,8 @@ func TopingRoutes(r *mux.Router) {
 
 	r.HandleFunc("/topings", h.FindTopings).Methods("GET")
 	r.HandleFunc("/toping/{id}", h.GetToping).Methods("GET")
-	r.HandleFunc("/toping", h.CreateToping).Methods("POST")
+	// r.HandleFunc("/toping", h.CreateToping).Methods("POST")
+	r.HandleFunc("/toping", middleware.UploadFile(h.CreateToping)).Methods("POST")
 	r.HandleFunc("/toping/{id}", h.UpdateToping).Methods("PATCH")
 	r.HandleFunc("/toping/{id}", h.DeleteToping).Methods("DELETE")
 }

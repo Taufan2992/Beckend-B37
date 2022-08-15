@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	productdto "golang/dto/product"
 	dto "golang/dto/result"
 	topingdto "golang/dto/toping"
 	"golang/models"
@@ -31,6 +32,11 @@ func (h *handlerToping) FindTopings(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 	}
 
+	// looping untuk melakukan tampilan gambar pada postman
+	for i, p := range topings {
+		topings[i].Image = path_file + p.Image
+	}
+
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: http.StatusOK, Data: topings}
 	json.NewEncoder(w).Encode(response)
@@ -50,6 +56,9 @@ func (h *handlerToping) GetToping(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// menampilkan gambar
+	toping.Image = path_file + toping.Image
+
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: http.StatusOK, Data: toping}
 	json.NewEncoder(w).Encode(response)
@@ -58,13 +67,22 @@ func (h *handlerToping) GetToping(w http.ResponseWriter, r *http.Request) {
 func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	request := new(topingdto.TopingRequest)
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
-		return
+	dataContex := r.Context().Value("dataFile") // add this code
+	filename := dataContex.(string)             // add this code
+
+	price, _ := strconv.Atoi(r.FormValue("price"))
+	request := productdto.ProductRequest{
+		Title: r.FormValue("title"),
+		Price: price,
 	}
+
+	// request := new(topingdto.TopingRequest)
+	// if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+	// 	json.NewEncoder(w).Encode(response)
+	// 	return
+	// }
 
 	validation := validator.New()
 	err := validation.Struct(request)
@@ -78,7 +96,7 @@ func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
 	toping := models.Toping{
 		Title: request.Title,
 		Price: request.Price,
-		Image: request.Image,
+		Image: filename,
 	}
 
 	// err := mysql.DB.Create(&toping).Error
