@@ -167,11 +167,11 @@ func (h *handlerTransaction) DeleteTransaction(w http.ResponseWriter, r *http.Re
 	json.NewEncoder(w).Encode(response)
 }
 
-// func convertResponseTransaction(u models.Transaction) models.TransactionResponse {
-// 	return models.TransactionResponse{
-// 		ID:    u.ID,
-// 		Name:  u.Name,
-// 		Desc:  u.Desc,
-// 		Price: u.Price,
-// 	}
-// }
+func convertResponseTransaction(u models.Transaction) models.TransactionResponse {
+	return models.TransactionResponse{
+		ID:        u.ID,
+		Status:    u.Status,
+		BuyerID:   u.BuyerID,
+		ProductID: u.ProductID,
+	}
+}
