@@ -17,24 +17,23 @@ type Product struct {
 }
 
 type ProductResponse struct {
-	ID       int                  `json:"id"`
-	Title    string               `json:"title"`
-	Price    int                  `json:"price"`
-	Image    string               `json:"image"`
-	UserID   int                  `json:"-"`
-	User     UsersProfileResponse `json:"user"`
-	Toping   []Toping             `json:"toping" gorm:"many2many:product_topings"`
-	TopingID []int                `json:"-" form:"toping_id" gorm:"-"`
+	ID     int                  `json:"id"`
+	Title  string               `json:"title"`
+	Price  int                  `json:"price"`
+	Image  string               `json:"image"`
+	UserID int                  `json:"-"`
+	User   UsersProfileResponse `json:"user"`
+	Toping []Toping             `json:"toping"`
 }
 
 type ProductTransactionResponse struct {
-	ID       int      `json:"id"`
-	Title    string   `json:"title"`
-	Price    int      `json:"price"`
-	Image    string   `json:"image"`
-	UserID   int      `json:"-"`
-	Toping   []Toping `json:"toping" gorm:"many2many:product_topings"`
-	TopingID []int    `json:"-" form:"toping_id" gorm:"-"`
+	ID       int    `json:"id"`
+	Title    string `json:"title"`
+	Price    int    `json:"price"`
+	Image    string `json:"image"`
+	UserID   int    `json:"-"`
+	TopingID []int  `json:"-" form:"toping_id" gorm:"-"`
+	// Topings  []TopingResponse `json:"topings"`
 }
 
 type ProductUserResponse struct {

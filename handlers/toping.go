@@ -76,14 +76,6 @@ func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
 		Price: price,
 	}
 
-	// request := new(topingdto.TopingRequest)
-	// if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-	// 	json.NewEncoder(w).Encode(response)
-	// 	return
-	// }
-
 	validation := validator.New()
 	err := validation.Struct(request)
 	if err != nil {
@@ -185,11 +177,11 @@ func (h *handlerToping) DeleteToping(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// func convertResponseToping(u models.Toping) models.TopingResponse {
-// 	return models.TopingResponse{
-// 		ID:    u.ID,
-// 		Name:  u.Name,
-// 		Desc:  u.Desc,
-// 		Price: u.Price,
-// 	}
-// }
+func convertResponseToping(u models.Toping) models.TopingResponse {
+	return models.TopingResponse{
+		ID:    u.ID,
+		Title: u.Title,
+		Price: u.Price,
+		Image: u.Image,
+	}
+}

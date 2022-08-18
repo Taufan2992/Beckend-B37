@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	productdto "golang/dto/product"
 	dto "golang/dto/result"
 	"golang/models"
@@ -69,16 +70,31 @@ func (h *handlerProduct) GetProduct(w http.ResponseWriter, r *http.Request) {
 func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// // get data user token
+	// userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	// userId := int(userInfo["id"].(float64))
+
 	dataContex := r.Context().Value("dataFile") // add this code
 	filename := dataContex.(string)             // add this code
 
+	var topingsId []int
+	for _, r := range r.FormValue("toping_id") {
+		if int(r-'0') >= 0 {
+			topingsId = append(topingsId, int(r-'0'))
+		}
+	}
+
 	price, _ := strconv.Atoi(r.FormValue("price"))
 	user_id, _ := strconv.Atoi(r.FormValue("user_id"))
+	toping_id, _ := strconv.Atoi(r.FormValue("toping_id"))
 	request := productdto.ProductRequest{
-		Title:  r.FormValue("title"),
-		Price:  price,
-		UserID: user_id,
+		Title:    r.FormValue("title"),
+		Price:    price,
+		UserID:   user_id,
+		TopingID: toping_id,
 	}
+
+	fmt.Println(request)
 
 	validation := validator.New()
 	err := validation.Struct(request)
@@ -89,11 +105,24 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// product := models.Product{
+	// 	Title:  request.Title,
+	// 	Price:  request.Price,
+	// 	Image:  filename,
+	// 	UserID: request.UserID,
+	// 	// TopingID: request.TopingID,
+	// 	// UserID: userId,
+	// }
+
+	topings, _ := h.ProductRepository.FindProductTopings(topingsId)
+
 	product := models.Product{
 		Title:  request.Title,
 		Price:  request.Price,
 		Image:  filename,
 		UserID: request.UserID,
+		Toping: topings,
+		// UserID: userId,
 	}
 
 	// err := mysql.DB.Create(&product).Error

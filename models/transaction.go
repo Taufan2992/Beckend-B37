@@ -15,12 +15,12 @@ type Transaction struct {
 }
 
 type TransactionResponse struct {
-	ID        int                        `json:"id" gorm:"primary_key:auto_increment"`
-	Status    string                     `json:"status" gorm:"type: varchar(255)"`
-	BuyerID   int                        `json:"buyer_id"`
-	Buyer     UsersProfileResponse       `json:"buyer"`
-	ProductID int                        `json:"product_id"`
-	Product   ProductTransactionResponse `json:"product"`
+	ID        int                  `json:"id" gorm:"primary_key:auto_increment"`
+	Status    string               `json:"status" gorm:"type: varchar(255)"`
+	BuyerID   int                  `json:"buyer_id"`
+	Buyer     UsersProfileResponse `json:"buyer"`
+	ProductID int                  `json:"product_id"`
+	Product   ProductResponse      `json:"product"`
 }
 
 func (TransactionResponse) TableName() string {

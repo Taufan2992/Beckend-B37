@@ -5,7 +5,7 @@ type ProductRequest struct {
 	Price    int    `json:"price" form:"price" gorm:"type: int"`
 	Image    string `json:"image" form:"image" gorm:"type: varchar(255)"`
 	UserID   int    `json:"user_id" gorm:"type: int"`
-	TopingID int    `json:"toping_id" form:"toping_id" gorm:"type: int"`
+	TopingID int    `json:"toping_id"`
 }
 
 type UpdateProductRequest struct {

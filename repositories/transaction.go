@@ -27,7 +27,7 @@ func (r *repository) FindTransactions() ([]models.Transaction, error) {
 
 func (r *repository) GetTransaction(ID int) (models.Transaction, error) {
 	var transaction models.Transaction
-	err := r.db.Preload("Buyer").Preload("Product").First(&transaction, ID).Error
+	err := r.db.Preload("Buyer").Preload("Product").Preload("Product.Toping").First(&transaction, ID).Error
 
 	return transaction, err
 }
