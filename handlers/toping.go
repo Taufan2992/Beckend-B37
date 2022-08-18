@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	productdto "golang/dto/product"
 	dto "golang/dto/result"
 	topingdto "golang/dto/toping"
 	"golang/models"
@@ -71,18 +70,10 @@ func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
 	filename := dataContex.(string)             // add this code
 
 	price, _ := strconv.Atoi(r.FormValue("price"))
-	request := productdto.ProductRequest{
+	request := topingdto.TopingRequest{
 		Title: r.FormValue("title"),
 		Price: price,
 	}
-
-	// request := new(topingdto.TopingRequest)
-	// if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-	// 	json.NewEncoder(w).Encode(response)
-	// 	return
-	// }
 
 	validation := validator.New()
 	err := validation.Struct(request)
@@ -118,12 +109,13 @@ func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
 func (h *handlerToping) UpdateToping(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	request := new(topingdto.UpdateTopingRequest)
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
-		return
+	dataContex := r.Context().Value("dataFile") // add this code
+	filename := dataContex.(string)             // add this code
+
+	price, _ := strconv.Atoi(r.FormValue("price"))
+	request := topingdto.TopingRequest{
+		Title: r.FormValue("title"),
+		Price: price,
 	}
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
@@ -144,7 +136,7 @@ func (h *handlerToping) UpdateToping(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if request.Image != "" {
-		toping.Image = request.Image
+		toping.Image = filename
 	}
 
 	data, err := h.TopingRepository.UpdateToping(toping)
@@ -156,7 +148,7 @@ func (h *handlerToping) UpdateToping(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: data}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseToping(data)}
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -185,11 +177,11 @@ func (h *handlerToping) DeleteToping(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// func convertResponseToping(u models.Toping) models.TopingResponse {
-// 	return models.TopingResponse{
-// 		ID:    u.ID,
-// 		Name:  u.Name,
-// 		Desc:  u.Desc,
-// 		Price: u.Price,
-// 	}
-// }
+func convertResponseToping(u models.Toping) models.TopingResponse {
+	return models.TopingResponse{
+		ID:    u.ID,
+		Title: u.Title,
+		Price: u.Price,
+		Image: u.Image,
+	}
+}

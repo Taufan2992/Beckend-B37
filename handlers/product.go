@@ -80,14 +80,6 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		UserID: user_id,
 	}
 
-	// request := new(productdto.ProductRequest)
-	// if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-	// 	json.NewEncoder(w).Encode(response)
-	// 	return
-	// }
-
 	validation := validator.New()
 	err := validation.Struct(request)
 	if err != nil {
@@ -133,14 +125,6 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		Price:  price,
 		UserID: user_id,
 	}
-
-	// request := new(productdto.UpdateProductRequest)
-	// if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-	// 	json.NewEncoder(w).Encode(response)
-	// 	return
-	// }
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 	product, err := h.ProductRepository.GetProduct(int(id))
@@ -207,11 +191,10 @@ func (h *handlerProduct) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 
 func convertResponseProduct(u models.Product) models.ProductResponse {
 	return models.ProductResponse{
-		ID:     u.ID,
-		Title:  u.Title,
-		Price:  u.Price,
-		Image:  u.Image,
-		User:   u.User,
-		Toping: u.Toping,
+		ID:    u.ID,
+		Title: u.Title,
+		Price: u.Price,
+		Image: u.Image,
+		User:  u.User,
 	}
 }
