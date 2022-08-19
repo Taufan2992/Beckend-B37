@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 )
 
@@ -58,6 +59,10 @@ func (h *handlerCart) GetCart(w http.ResponseWriter, r *http.Request) {
 func (h *handlerCart) CreateCart(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// get data user token
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
 	request := new(cartdto.CartRequest)
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -75,11 +80,33 @@ func (h *handlerCart) CreateCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
+	RequestCartForm := models.Cart{
+		ProductID:     id,
+		TransactionID: userId,
+		Qty:           request.Qty,
+		SubAmount:     request.SubAmount,
+		TopingID:      request.TopingID,
+	}
+
+	validate := validator.New()
+	errr := validate.Struct(RequestCartForm)
+	if errr != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	topping, _ := h.CartRepository.FindCartTopings(request.TopingID)
+
 	cart := models.Cart{
 		ProductID:     request.ProductID,
 		TransactionID: request.TransactionID,
 		Qty:           request.Qty,
 		SubAmount:     request.SubAmount,
+		Toping:        topping,
 	}
 
 	// err := mysql.DB.Create(&cart).Error
@@ -101,7 +128,14 @@ func (h *handlerCart) CreateCart(w http.ResponseWriter, r *http.Request) {
 func (h *handlerCart) UpdateCart(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	request := new(cartdto.CartRequest)
+	// get data user token
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
+	// request := new(cartdto.CartRequest)
+	request := cartdto.CartRequest{
+		UserID: userId,
+	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -150,6 +184,10 @@ func (h *handlerCart) UpdateCart(w http.ResponseWriter, r *http.Request) {
 func (h *handlerCart) DeleteCart(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// get data user token
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 	cart, err := h.CartRepository.GetCart(id)
 	if err != nil {
@@ -159,7 +197,7 @@ func (h *handlerCart) DeleteCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := h.CartRepository.DeleteCart(cart)
+	data, err := h.CartRepository.DeleteCart(cart, userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}

@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 )
 
@@ -69,6 +70,10 @@ func (h *handlerProduct) GetProduct(w http.ResponseWriter, r *http.Request) {
 func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// get data user token
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
 	dataContex := r.Context().Value("dataFile") // add this code
 	filename := dataContex.(string)             // add this code
 
@@ -93,7 +98,7 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		Title:  request.Title,
 		Price:  request.Price,
 		Image:  filename,
-		UserID: request.UserID,
+		UserID: userId,
 	}
 
 	// err := mysql.DB.Create(&product).Error
@@ -114,6 +119,10 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 
 func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
+	// get data user token
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
 
 	dataContex := r.Context().Value("dataFile") // add this code
 	filename := dataContex.(string)             // add this code
@@ -148,7 +157,7 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if request.UserID != 0 {
-		product.UserID = request.UserID
+		product.UserID = userId
 	}
 
 	data, err := h.ProductRepository.UpdateProduct(product)
@@ -167,6 +176,10 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 func (h *handlerProduct) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// get data user token
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 	product, err := h.ProductRepository.GetProduct(id)
 	if err != nil {
@@ -176,7 +189,7 @@ func (h *handlerProduct) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := h.ProductRepository.DeleteProduct(product)
+	data, err := h.ProductRepository.DeleteProduct(product, userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}

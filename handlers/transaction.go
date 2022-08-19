@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 )
 
@@ -58,6 +59,10 @@ func (h *handlerTransaction) GetTransaction(w http.ResponseWriter, r *http.Reque
 func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// get data user token
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
 	request := new(transactiondto.TransactionRequest)
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -76,7 +81,7 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 	}
 
 	transaction := models.Transaction{
-		UserID: request.UserID,
+		UserID: userId,
 		Amount: request.Amount,
 	}
 
@@ -99,6 +104,10 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 func (h *handlerTransaction) UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// get data user token
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
 	request := new(transactiondto.UpdateTransactionRequest)
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -117,7 +126,7 @@ func (h *handlerTransaction) UpdateTransaction(w http.ResponseWriter, r *http.Re
 	}
 
 	if request.UserID != 0 {
-		transaction.UserID = request.UserID
+		transaction.UserID = userId
 	}
 
 	if request.Amount != 0 {
@@ -140,6 +149,10 @@ func (h *handlerTransaction) UpdateTransaction(w http.ResponseWriter, r *http.Re
 func (h *handlerTransaction) DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// get data user token
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 	transaction, err := h.TransactionRepository.GetTransaction(id)
 	if err != nil {
@@ -149,7 +162,7 @@ func (h *handlerTransaction) DeleteTransaction(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	data, err := h.TransactionRepository.DeleteTransaction(transaction)
+	data, err := h.TransactionRepository.DeleteTransaction(transaction, userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}

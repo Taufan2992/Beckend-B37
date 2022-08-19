@@ -10,9 +10,8 @@ type Product struct {
 	Image     string               `json:"image" form:"image" gorm:"type: varchar(255)"`
 	UserID    int                  `json:"user_id" form:"user_id"`
 	User      UsersProfileResponse `json:"user" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Cart      []Cart
-	CreatedAt time.Time `json:"-"`
-	UpdatedAt time.Time `json:"-"`
+	CreatedAt time.Time            `json:"-"`
+	UpdatedAt time.Time            `json:"-"`
 }
 
 type ProductUserResponse struct {
